@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0D1B2A;
+  --foreground: #FAF8F5;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+canvas {
+  touch-action: none;
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  color: #FAF8F5;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.section-title .accent {
+  color: #D4A853;
+}
+
+.body-text {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  color: rgba(250, 248, 245, 0.75);
+  line-height: 1.7;
+}
+
+.glass-card {
+  background: rgba(27, 73, 101, 0.25);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 168, 83, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(212, 168, 83, 0.5);
+  background: rgba(27, 73, 101, 0.4);
+  box-shadow: 0 8px 32px rgba(212, 168, 83, 0.15);
+}
+
+/* Decorative wave border */
+.wave-divider {
+  position: relative;
+  height: 60px;
+  overflow: hidden;
+}
+
+.wave-divider::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: 
+    radial-gradient(ellipse 50% 100% at 20% 100%, rgba(27, 73, 101, 0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 100% at 50% 100%, rgba(193, 68, 14, 0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 100% at 80% 100%, rgba(27, 73, 101, 0.3) 0%, transparent 70%);
+}
+
+/* Shrimp silhouette decoration */
+.shrimp-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M12 36c4-4 8-6 14-6s10 2 14 6' stroke='%23D4A85320' fill='none' stroke-width='1.5'/%3E%3Ccircle cx='14' cy='14' r='6' stroke='%23D4A85315' fill='none' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 48px 48px;
+  opacity: 0.5;
+}
+
+/* Gold shimmer accent line */
+.gold-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #D4A853, transparent);
+  width: 80px;
+  margin: 16px auto;
+}
+
+/* Pill / Tag styling */
+.tag-pill {
+  padding: 12px 28px;
+  background: rgba(193, 68, 14, 0.15);
+  border: 1px solid rgba(193, 68, 14, 0.4);
+  border-radius: 999px;
+  color: #E86A33;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.tag-pill:hover {
+  background: #C1440E;
+  color: #FAF8F5;
+  border-color: #C1440E;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(193, 68, 14, 0.4);
+}
+
+/* Scroll indicator pulse */
+.scroll-pulse {
+  animation: pulse-down 2s ease-in-out infinite;
+}
+
+@keyframes pulse-down {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(8px); opacity: 0.5; }
+}
+
+/* Gradient overlay for sections */
+.section-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, #0D1B2A 75%);
+  pointer-events: none;
+}
