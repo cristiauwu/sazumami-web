@@ -1,24 +1,26 @@
-import dynamic from 'next/dynamic';
-import { HeroSection, OriginSection, IngredientsSection, UsesSection, NutritionalSection, BottleSection, FooterSection } from '@/components/sections/Sections';
+'use client';
 
-const Scene3D = dynamic(() => import('@/components/scenes/Scene3D'), { ssr: false });
+import { useState, useCallback } from 'react';
+import { CanvasSequence } from '@/components/scenes/CanvasSequence';
+import { StagesContainer, ScrollSpacers } from '@/components/sections/Sections';
 
 export default function Home() {
+  const [loaded, setLoaded] = useState(false);
+
+  const handleReady = useCallback(() => {
+    setLoaded(true);
+  }, []);
+
   return (
-    <main className="relative min-h-screen bg-[#0D1B2A] text-blanco overflow-x-hidden">
-      {/* 3D Canvas fixed in background */}
-      <Scene3D />
-      
-      {/* Scrollable Content */}
-      <div className="relative z-10">
-        <HeroSection />
-        <OriginSection />
-        <IngredientsSection />
-        <UsesSection />
-        <NutritionalSection />
-        <BottleSection />
-        <FooterSection />
-      </div>
+    <main className={`app-root ${loaded ? 'loaded' : ''}`}>
+      <CanvasSequence onReady={handleReady} />
+
+      {loaded && (
+        <>
+          <StagesContainer />
+          <ScrollSpacers />
+        </>
+      )}
     </main>
   );
 }

@@ -11,20 +11,15 @@
     "next": "14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.167.1",
-    "@react-three/fiber": "^8.16.8",
-    "@react-three/drei": "^9.109.0",
     "gsap": "^3.12.5",
     "@gsap/react": "^2.1.1",
-    "lucide-react": "^0.424.0",
-    "clsx": "^2.1.1"
+    "lucide-react": "^0.424.0"
   },
   "devDependencies": {
     "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@types/three": "^0.167.1",
     "tailwindcss": "^3.4.7",
     "postcss": "^8",
     "autoprefixer": "^10"

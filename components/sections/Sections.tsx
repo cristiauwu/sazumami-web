@@ -1,200 +1,241 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-import { ArrowDown, Droplets, Flame, Leaf, Shield, Waves, Sparkles } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { ArrowDown, Flame, Leaf, Droplets, Sparkles, Waves, Shield } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+const STAGES = [
+  { start: 0, end: 12 },
+  { start: 12, end: 28 },
+  { start: 28, end: 48 },
+  { start: 48, end: 65 },
+  { start: 65, end: 78 },
+  { start: 78, end: 90 },
+  { start: 90, end: 100 },
+];
 
-export function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
+function useScrollProgress() {
+  const [stageValues, setStageValues] = useState<number[]>([1, 0, 0, 0, 0, 0, 0]);
 
-  useGSAP(() => {
-    const tl = gsap.timeline();
-    tl.from(titleRef.current, { y: 80, opacity: 0, duration: 1.4, ease: 'power3.out', delay: 0.3 });
-    tl.from(lineRef.current, { scaleX: 0, duration: 1, ease: 'power2.out' }, '-=0.6');
-    tl.from(subtitleRef.current, { y: 30, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.5');
-  }, { scope: containerRef });
+  const onScroll = useCallback(() => {
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    if (maxScroll <= 0) return;
 
-  return (
-    <section ref={containerRef} className="relative h-screen flex flex-col items-center justify-center text-center px-4 z-10">
-      {/* Decorative wave icon */}
-      <div className="mb-6 opacity-0 animate-[fadeIn_1.5s_ease-in_forwards]">
-        <Waves className="w-10 h-10 text-oro/60" />
-      </div>
+    const progress = (window.scrollY / maxScroll) * 100;
 
-      <h1 ref={titleRef} className="font-serif text-6xl md:text-8xl lg:text-9xl font-bold text-blanco tracking-tight">
-        Saz<span className="text-oro">u</span>mami
-      </h1>
+    const newValues = STAGES.map((stage) => {
+      if (progress < stage.start) return 0;
+      if (progress >= stage.end) return 0;
 
-      <div ref={lineRef} className="w-0 h-[2px] bg-gradient-to-r from-transparent via-paprika to-transparent my-4" />
+      const range = stage.end - stage.start;
+      const fadeInEnd = stage.start + range * 0.15;
+      const fadeOutStart = stage.end - range * 0.15;
 
-      <p ref={subtitleRef} className="text-lg md:text-2xl text-blanco/60 font-sans tracking-widest uppercase">
-        Sazón de mar para todo uso
-      </p>
+      if (progress < fadeInEnd) {
+        return (progress - stage.start) / (fadeInEnd - stage.start);
+      }
+      if (progress > fadeOutStart) {
+        return 1 - (progress - fadeOutStart) / (stage.end - fadeOutStart);
+      }
+      return 1;
+    });
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-10 scroll-pulse">
-        <ArrowDown className="w-6 h-6 text-oro/50" />
-      </div>
-    </section>
-  );
+    setStageValues(newValues);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [onScroll]);
+
+  return { stageValues };
 }
 
-export function OriginSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  useGSAP(() => {
-    gsap.from('.origin-content', {
-      scrollTrigger: { trigger: ref.current, start: 'top 80%', end: 'top 40%', scrub: 1 },
-      y: 100, opacity: 0, duration: 1,
-    });
-  }, { scope: ref });
+const sectionStyle = (opacity: number, transform: string): React.CSSProperties => ({
+  opacity,
+  transform,
+  transition: 'opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
+  willChange: 'opacity, transform',
+});
 
+export function HeroSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 40;
   return (
-    <section ref={ref} className="min-h-screen flex items-center justify-center px-6 md:px-20 z-10 relative">
-      <div className="origin-content max-w-3xl mx-auto text-center">
-        {/* Wave accent */}
-        <div className="flex justify-center mb-6">
-          <Waves className="w-8 h-8 text-mar/40" />
+    <div className="stage stage-hero" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center text-center">
+        <div className="hero-wave-icon" style={{ opacity }}>
+          <Waves className="w-10 h-10 text-oro/60" />
         </div>
-        <h2 className="section-title mb-4">
-          Nacido del <span className="text-oro">mar</span> y las especias
-        </h2>
+
+        <h1 className="display-title">
+          Saz<span className="text-oro">u</span>mami
+        </h1>
+
         <div className="gold-line" />
-        <p className="body-text mt-8">
-          Sazumami fusiona el <strong className="text-blanco">umami natural del camarón</strong> deshidratado con la intensidad de especias selectas. Un polvo que concentra la tradición costera mexicana en cada gramo.
-        </p>
-        <p className="body-text mt-4">
-          Formulamos cada nota para resaltar, no opacar. El polvo anaranjado-rojizo que ves en el frasco es la mezcla exacta de ocho ingredientes sin rellenos ni aditivos.
-        </p>
 
-        {/* Stats badges */}
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <div className="glass-card px-6 py-3 flex items-center gap-2">
-            <Droplets className="w-4 h-4 text-camaron" />
-            <span className="text-sm text-blanco/80">117 g contenido neto</span>
-          </div>
-          <div className="glass-card px-6 py-3 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-oro" />
-            <span className="text-sm text-blanco/80">8 ingredientes puros</span>
-          </div>
-          <div className="glass-card px-6 py-3 flex items-center gap-2">
-            <Flame className="w-4 h-4 text-paprika" />
-            <span className="text-sm text-blanco/80">Hecho en México</span>
-          </div>
+        <p className="hero-subtitle">Sazón de mar.</p>
+
+        <div className="scroll-indicator" style={{ opacity: Math.max(0, opacity * 0.8) }}>
+          <ArrowDown className="w-6 h-6 text-oro/50" />
+          <span className="text-xs text-oro/40 tracking-widest uppercase mt-2">Desliza para explorar</span>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-export function IngredientsSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const items = [
-    { name: 'Harina de camarón', desc: 'Umami puro y 51.7g de proteína por cada 100g', icon: '🦐' },
-    { name: 'Sal de mesa', desc: 'Conservador natural y potenciador de sabor', icon: '🧂' },
-    { name: 'Ajo en polvo', desc: 'Notas terrosas y aromáticas profundas', icon: '🧄' },
-    { name: 'Cebolla en polvo', desc: 'Dulzura y cuerpo en cada preparación', icon: '🧅' },
-    { name: 'Paprika', desc: 'Color vibrante y toque ahumado sutil', icon: '🌶️' },
-    { name: 'Pimienta negra', desc: 'Pungencia y calidez equilibrada', icon: '⚫' },
-    { name: 'Chile en polvo', desc: 'Fuego controlado y carácter mexicano', icon: '🔥' },
-    { name: 'Hierbas finas', desc: 'Frescura herbácea y complejidad aromática', icon: '🌿' },
-  ];
-
-  useGSAP(() => {
-    gsap.from('.ingredient-item', {
-      scrollTrigger: { trigger: ref.current, start: 'top 70%', end: 'bottom center', scrub: 1 },
-      y: 60, opacity: 0, stagger: 0.12, duration: 0.8,
-    });
-  }, { scope: ref });
-
+export function OriginSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 60;
   return (
-    <section ref={ref} className="min-h-screen py-24 px-6 md:px-20 z-10 relative">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
+    <div className="stage stage-origin" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center px-6 md:px-20">
+        <div className="stage-panel max-w-xl text-center">
+          <Waves className="w-8 h-8 text-oro/50 mx-auto mb-3" />
           <h2 className="section-title">
-            La Alquimia de <span className="text-oro">8</span> Ingredientes
+            El <span className="text-oro">Origen</span>
           </h2>
-          <div className="gold-line" />
-          <p className="body-text mt-4 max-w-xl mx-auto">
-            Cada ingrediente aporta su carácter. Juntos crean un perfil de sabor que no existe en ningún otro sazonador.
+          <div className="gold-line mx-auto" />
+          <p className="body-text mt-6">
+            Una mezcla artesanal nacida de la necesidad de llevar el auténtico y profundo sabor del mar directamente a tu mesa.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {items.map((item, i) => (
-            <div key={i} className="ingredient-item glass-card p-6">
-              <div className="text-3xl mb-3">{item.icon}</div>
-              <h3 className="font-serif text-xl font-bold text-oro mb-2">{item.name}</h3>
-              <p className="text-sm text-blanco/60">{item.desc}</p>
-            </div>
-          ))}
-        </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-export function UsesSection() {
+export function CompositionSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 60;
+  return (
+    <div className="stage stage-composition" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center px-6 md:px-20">
+        <div className="stage-panel max-w-lg">
+          <h2 className="section-title text-3xl md:text-4xl mb-2">
+            Nuestra <span className="text-oro">Receta</span>
+          </h2>
+          <div className="gold-line" />
+
+          <p className="body-text mt-4 text-sm">
+            El perfil umami marino se define por nuestro ingrediente dominante:
+          </p>
+
+          <div className="mt-4 mb-6">
+            <span className="stat-highlight">Camarón seco molido (53.42%)</span>
+          </div>
+
+          <p className="body-text text-xs">
+            Sal de mesa (32.05%), Ajo en polvo, Cebolla en polvo, Paprika, Pimienta negra, Chile y Hierbas finas secas.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function UsesSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 40;
   const uses = [
     { name: 'Carnes', icon: Flame },
     { name: 'Mariscos', icon: Waves },
     { name: 'Verduras', icon: Leaf },
     { name: 'Sopas', icon: Droplets },
     { name: 'Botanas', icon: Sparkles },
-    { name: 'Fruta', icon: Leaf },
+    { name: 'Fruta fresca', icon: Leaf },
   ];
 
   return (
-    <section className="min-h-screen py-24 px-6 md:px-20 z-10 relative flex flex-col justify-center">
-      <div className="max-w-4xl mx-auto w-full">
-        <div className="text-center mb-16">
-          <h2 className="section-title">
-            Modo de <span className="text-paprika">Empleo</span>
+    <div className="stage stage-uses" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center px-6">
+        <div className="stage-panel text-center max-w-xl">
+          <h2 className="section-title text-3xl md:text-4xl">
+            Versatilidad <span className="text-paprika">Absoluta</span>
           </h2>
-          <div className="gold-line" />
-          <p className="body-text mt-4 max-w-xl mx-auto">
-            Esparcir al gusto. La intensidad se libera con el calor y la humedad. No necesita reposo.
-          </p>
-        </div>
-        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-          {uses.map(({ name, icon: Icon }) => (
-            <div key={name} className="tag-pill flex items-center gap-2">
-              <Icon className="w-4 h-4" />
-              {name}
-            </div>
-          ))}
+          <div className="gold-line mx-auto" />
+
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-8">
+            {uses.map(({ name, icon: Icon }) => (
+              <span key={name} className="tag-pill inline-flex items-center gap-2">
+                <Icon className="w-4 h-4" />
+                {name}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-export function NutritionalSection() {
+export function IngredientsSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 60;
+  const ingredients = [
+    { name: 'Harina de camarón', pct: 53.42, desc: 'Ingrediente dominante. Umami puro, 51.7g proteína/100g.', accent: true },
+    { name: 'Sal de mesa', pct: 32.05, desc: 'Conservador natural y potenciador de sabor.' },
+    { name: 'Ajo en polvo', pct: 4.27, desc: 'Notas terrosas y aromáticas profundas.' },
+    { name: 'Cebolla en polvo', pct: 4.27, desc: 'Dulzura y cuerpo en cada preparación.' },
+    { name: 'Paprika', pct: 2.56, desc: 'Color vibrante y toque ahumado sutil.' },
+    { name: 'Pimienta negra', pct: 1.28, desc: 'Pungencia y calidez equilibrada.' },
+    { name: 'Chile en polvo', pct: 1.28, desc: 'Fuego controlado y carácter mexicano.' },
+    { name: 'Hierbas finas', pct: 0.85, desc: 'Frescura herbácea y complejidad aromática.' },
+  ];
+
   return (
-    <section className="min-h-screen py-24 px-6 md:px-20 z-10 relative flex items-center justify-center">
-      <div className="max-w-3xl mx-auto w-full text-center">
-        <div className="flex justify-center mb-6">
-          <Shield className="w-8 h-8 text-oro/60" />
+    <div className="stage stage-ingredients" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center px-6 md:px-20">
+        <div className="stage-panel max-w-lg">
+          <h2 className="section-title text-center text-3xl md:text-4xl">
+            Ingredientes <span className="text-oro">y Composición</span>
+          </h2>
+          <div className="gold-line mx-auto" />
+
+          <div className="space-y-2.5 mt-6">
+            {ingredients.map((ing, i) => (
+              <div key={i} className={`flex items-center justify-between py-2.5 px-4 rounded-lg ${ing.accent ? 'bg-camaron/10 border border-camaron/20' : ''}`}>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm font-bold tabular-nums ${ing.accent ? 'text-camaron' : 'text-oro/70'}`}>
+                    {ing.pct}%
+                  </span>
+                  <span className={ing.accent ? 'text-blanco font-semibold' : 'text-blanco/85'}>
+                    {ing.name}
+                  </span>
+                </div>
+                <span className="hidden sm:block text-xs text-blanco/40 max-w-[200px] text-right">
+                  {ing.desc}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 text-center">
+            <span className="text-xs text-blanco/35">Contenido neto: 117 g · 8 ingredientes puros sin aditivos</span>
+          </div>
         </div>
-        <h2 className="section-title mb-4">
-          Lo que <span className="text-blanco">lleva</span>
-        </h2>
-        <div className="gold-line" />
-        
-        <div className="glass-card mt-10 p-8 md:p-12 text-left">
-          <h3 className="text-center font-serif text-xl text-oro mb-8 uppercase tracking-widest">Tabla Nutrimental por 100g</h3>
-          <div className="space-y-3 text-sm">
+      </div>
+    </div>
+  );
+}
+
+export function NutritionSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 60;
+  return (
+    <div className="stage stage-nutrition" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center px-6 md:px-20">
+        <div className="stage-panel max-w-lg">
+          <div className="flex items-center gap-3 mb-2 justify-center">
+            <Shield className="w-6 h-6 text-oro/60" />
+            <h2 className="section-title text-3xl md:text-4xl">
+              Información <span className="text-blanco">Nutrimental</span>
+            </h2>
+          </div>
+          <div className="gold-line mx-auto" />
+
+          <div className="space-y-3 text-sm mt-6">
             {[
-              { label: 'Energía', value: '180 kcal', bold: true },
-              { label: 'Proteínas', value: '30 g', bold: true },
+              { label: 'Contenido Neto', value: '117 g', bold: true },
+              { label: 'Energía por 100g', value: '180 kcal', bold: true },
+              { label: 'Proteínas', value: '30 g' },
               { label: 'Grasas totales', value: '3 g' },
-              { label: 'Grasas saturadas', value: '0.4 g', bold: true },
-              { label: 'Grasas trans', value: '0 mg', bold: true },
+              { label: 'Grasas saturadas', value: '0.4 g' },
               { label: 'Carbohidratos', value: '9.9 g' },
               { label: 'Azúcares', value: '0.8 g' },
               { label: 'Fibra dietética', value: '3 g' },
@@ -206,64 +247,80 @@ export function NutritionalSection() {
               </div>
             ))}
           </div>
-          
-          <div className="mt-8 pt-6 border-t border-paprika/30 text-center">
-            <p className="text-xs text-paprika uppercase tracking-widest mb-2">
-              ⬥ Exceso Sodio ⬥
-            </p>
-            <p className="text-xs text-blanco/40">
-              Sello de advertencia conforme a NOM-051 Fase 3
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-export function BottleSection() {
-  return (
-    <section className="min-h-screen py-24 px-6 md:px-20 z-10 relative flex items-center justify-center">
-      <div className="max-w-2xl mx-auto text-center glass-card p-10 md:p-16">
-        <div className="flex justify-center mb-6">
-          <Shield className="w-8 h-8 text-oro/60" />
-        </div>
-        <h2 className="section-title mb-4">
-          Vidrio y <span className="text-oro">Pureza</span>
-        </h2>
-        <div className="gold-line" />
-        <p className="body-text mb-8 mt-6">
-          Envasado en vidrio transparente de alta resistencia. El vidrio protege el polvo de especias de la oxidación y permite ver la calidad del contenido: su color anaranjado-rojizo con motas oscuras de paprika y pimienta.
-        </p>
-        <div className="inline-block glass-card px-8 py-4">
-          <p className="text-sm text-blanco/70 uppercase tracking-widest">
-            Consérvese en lugar fresco y seco<br />
-            Una vez abierto, mantener bien cerrado
+          <div className="mt-8 flex justify-center">
+            <div className="nom-seal">
+              <span className="nom-seal-text">EXCESO SODIO</span>
+              <span className="nom-seal-sub">SECRETARÍA DE SALUD</span>
+            </div>
+          </div>
+
+          <p className="text-oro text-sm font-semibold mt-6 text-center tracking-wider">
+            CONTIENE CAMARÓN/MARISCOS
           </p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-export function FooterSection() {
+export function FooterSection({ opacity }: { opacity: number }) {
+  const translateY = Math.max(0, 1 - opacity) * 30;
   return (
-    <footer className="py-16 px-6 text-center z-10 relative" style={{ background: 'linear-gradient(to top, #0A1520, transparent)' }}>
-      <h3 className="font-serif text-3xl font-bold text-blanco mb-2">
-        Saz<span className="text-oro">u</span>mami
-      </h3>
-      <p className="text-blanco/40 mb-6">Hecho en México · Contenido neto: 117 g</p>
-      
-      <div className="flex justify-center gap-6 text-xs text-blanco/30 uppercase tracking-widest mb-8">
-        <span className="border border-paprika/30 px-3 py-1 text-paprika/60">Contiene camarón</span>
-        <span className="border border-paprika/30 px-3 py-1 text-paprika/60">Exceso sodio</span>
+    <div className="stage stage-footer" style={sectionStyle(opacity, `translateY(${translateY}px)`)}>
+      <div className="stage-inner items-center justify-center text-center px-6 pb-16">
+        <div className="stage-panel max-w-md">
+          <p className="body-text text-lg mb-6">Consérvese en lugar fresco y seco.</p>
+
+          <button className="cta-button mx-auto" aria-label="Hazlo tuyo - Contactar para adquirir Sazumami">
+            Hazlo tuyo
+          </button>
+
+          <div className="gold-line mx-auto mt-8 mb-4" />
+
+          <p className="text-xs text-blanco/30 tracking-widest uppercase">
+            Hecho en México. Todos los derechos reservados.
+          </p>
+        </div>
       </div>
-      
-      <div className="gold-line mx-auto mb-6" />
-      
-      <p className="text-xs text-blanco/20">
-        © {new Date().getFullYear()} Sazumami. Todos los derechos reservados.
-      </p>
-    </footer>
+    </div>
+  );
+}
+
+export function ScrollSpacers() {
+  useEffect(() => {
+    const update = () => {
+      const vh = window.innerHeight;
+      document.body.style.height = `${7 * vh}px`;
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const heights = [12, 16, 20, 17, 13, 12, 10];
+
+  return (
+    <>
+      {heights.map((pct, i) => (
+        <div key={i} style={{ height: `${pct}vh` }} />
+      ))}
+    </>
+  );
+}
+
+export function StagesContainer() {
+  const { stageValues } = useScrollProgress();
+
+  return (
+    <div className="stages-layer">
+      <HeroSection opacity={stageValues[0]} />
+      <OriginSection opacity={stageValues[1]} />
+      <CompositionSection opacity={stageValues[2]} />
+      <IngredientsSection opacity={stageValues[3]} />
+      <UsesSection opacity={stageValues[4]} />
+      <NutritionSection opacity={stageValues[5]} />
+      <FooterSection opacity={stageValues[6]} />
+    </div>
   );
 }

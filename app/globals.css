@@ -3,130 +3,371 @@
 @tailwind utilities;
 
 :root {
-  --background: #0D1B2A;
-  --foreground: #FAF8F5;
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  --mar: #1B4965;
+  --negro: #1A1A1A;
+  --paprika: #C1440E;
+  --camaron: #E86A33;
+  --oro: #D4A853;
+  --arena: #F5E6CA;
+  --blanco: #FAF8F5;
+  --vidrio: #A8C5B8;
+  --bg: #000000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-sans);
+  color: var(--blanco);
+  background: var(--bg);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-canvas {
+body.loading {
+  overflow: hidden;
+}
+
+.app-root {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ============ PRELOADER ============ */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.preloader-logo {
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--blanco);
+  letter-spacing: -0.02em;
+}
+
+.preloader-logo-accent {
+  color: var(--oro);
+}
+
+.preloader-track {
+  width: min(300px, 60vw);
+  height: 2px;
+  background: rgba(212, 168, 83, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.preloader-fill {
+  height: 100%;
+  background: var(--oro);
+  border-radius: 2px;
+  transition: width 0.15s ease-out;
+}
+
+.preloader-text {
+  color: var(--oro);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.preloader-label {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.6;
+  margin-left: 0.5rem;
+}
+
+/* ============ CANVAS ============ */
+.sequence-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
   touch-action: none;
 }
 
-.section-title {
-  font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 6vw, 5rem);
+/* ============ EXPLOSION BACKGROUND ============ */
+
+/* ============ STAGES LAYER ============ */
+.stages-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.stage-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: clamp(1rem, 4vw, 2rem);
+}
+
+.stage-panel {
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 12px;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid rgba(212, 168, 83, 0.08);
+}
+
+.stage-inner > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============ TYPOGRAPHY ============ */
+.display-title {
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: clamp(4rem, 12vw, 10rem);
   font-weight: 700;
-  color: #FAF8F5;
+  color: var(--blanco);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.9), 0 0 80px rgba(0, 0, 0, 0.5);
+}
+
+.section-title {
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--blanco);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
-.section-title .accent {
-  color: #D4A853;
-}
-
 .body-text {
-  font-family: var(--font-sans);
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
-  color: rgba(250, 248, 245, 0.75);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+  color: #E8E4DF;
   line-height: 1.7;
 }
 
-.glass-card {
-  background: rgba(27, 73, 101, 0.25);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 168, 83, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+.hero-subtitle {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: var(--oro);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
 }
 
-.glass-card:hover {
-  border-color: rgba(212, 168, 83, 0.5);
-  background: rgba(27, 73, 101, 0.4);
-  box-shadow: 0 8px 32px rgba(212, 168, 83, 0.15);
-}
-
-/* Decorative wave border */
-.wave-divider {
-  position: relative;
-  height: 60px;
-  overflow: hidden;
-}
-
-.wave-divider::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: 
-    radial-gradient(ellipse 50% 100% at 20% 100%, rgba(27, 73, 101, 0.3) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 100% at 50% 100%, rgba(193, 68, 14, 0.15) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 100% at 80% 100%, rgba(27, 73, 101, 0.3) 0%, transparent 70%);
-}
-
-/* Shrimp silhouette decoration */
-.shrimp-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M12 36c4-4 8-6 14-6s10 2 14 6' stroke='%23D4A85320' fill='none' stroke-width='1.5'/%3E%3Ccircle cx='14' cy='14' r='6' stroke='%23D4A85315' fill='none' stroke-width='1'/%3E%3C/svg%3E");
-  background-size: 48px 48px;
-  opacity: 0.5;
-}
-
-/* Gold shimmer accent line */
+/* ============ DECORATIVE ============ */
 .gold-line {
   height: 2px;
-  background: linear-gradient(90deg, transparent, #D4A853, transparent);
+  background: linear-gradient(90deg, transparent, var(--oro), transparent);
   width: 80px;
-  margin: 16px auto;
+  margin: 1rem 0;
 }
 
-/* Pill / Tag styling */
-.tag-pill {
-  padding: 12px 28px;
-  background: rgba(193, 68, 14, 0.15);
-  border: 1px solid rgba(193, 68, 14, 0.4);
-  border-radius: 999px;
-  color: #E86A33;
-  font-weight: 600;
-  font-size: 1.1rem;
-  cursor: default;
-  transition: all 0.3s ease;
+.hero-wave-icon {
+  margin-bottom: 1.5rem;
+  transition: opacity 0.3s ease;
 }
 
-.tag-pill:hover {
-  background: #C1440E;
-  color: #FAF8F5;
-  border-color: #C1440E;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(193, 68, 14, 0.4);
-}
-
-/* Scroll indicator pulse */
-.scroll-pulse {
+.scroll-indicator {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   animation: pulse-down 2s ease-in-out infinite;
 }
 
 @keyframes pulse-down {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(8px); opacity: 0.5; }
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+  50% { transform: translateX(-50%) translateY(8px); opacity: 0.5; }
 }
 
-/* Gradient overlay for sections */
-.section-overlay {
+/* ============ GLASS CARD ============ */
+.glass-card {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 168, 83, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ============ STAT HIGHLIGHT ============ */
+.stat-highlight {
+  display: inline-block;
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 700;
+  color: #FAF8F5;
+  padding: 0.5rem 1.5rem;
+  background: rgba(232, 106, 51, 0.2);
+  border: 1px solid rgba(232, 106, 51, 0.4);
+  border-radius: 8px;
+}
+
+/* ============ TAG PILL ============ */
+.tag-pill {
+  padding: 0.75rem 1.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 168, 83, 0.15);
+  border-radius: 999px;
+  color: #FAF8F5;
+  font-weight: 600;
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  pointer-events: auto;
+  cursor: default;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.tag-pill:hover {
+  background: var(--paprika);
+  color: var(--blanco);
+  border-color: var(--paprika);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(193, 68, 14, 0.4);
+}
+
+/* ============ NOM-051 SEAL ============ */
+.nom-seal {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+  background: #000;
+  clip-path: polygon(
+    30% 0%, 70% 0%, 100% 30%, 100% 70%,
+    70% 100%, 30% 100%, 0% 70%, 0% 30%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff;
+  position: relative;
+}
+
+.nom-seal::before {
+  content: '';
   position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 0%, #0D1B2A 75%);
-  pointer-events: none;
+  inset: 4px;
+  border: 1.5px solid #fff;
+  clip-path: polygon(
+    30% 0%, 70% 0%, 100% 30%, 100% 70%,
+    70% 100%, 30% 100%, 0% 70%, 0% 30%
+  );
+}
+
+.nom-seal-text {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.nom-seal-sub {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.4rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin-top: 0.35rem;
+}
+
+/* ============ CTA BUTTON ============ */
+.cta-button {
+  pointer-events: auto;
+  background: var(--oro);
+  color: var(--negro);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1rem 3rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(212, 168, 83, 0.4);
+}
+
+.cta-button:active {
+  transform: scale(0.98);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .stage-inner {
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding-bottom: 4rem;
+  }
+
+  .stage-panel {
+    background: rgba(10, 10, 10, 0.95);
+  }
+
+  .nom-seal {
+    width: 120px;
+    height: 120px;
+  }
+
+  .nom-seal-text {
+    font-size: 0.6rem;
+  }
+
+  .nom-seal-sub {
+    font-size: 0.35rem;
+  }
+
+  .display-title {
+    font-size: clamp(3rem, 15vw, 6rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-highlight {
+    font-size: 1rem;
+    padding: 0.4rem 1rem;
+  }
+
+  .tag-pill {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+  }
 }
